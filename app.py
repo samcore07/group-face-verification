@@ -1,4 +1,9 @@
 import os
+
+# 1. Point DeepFace home directory to the local project root
+# This forces DeepFace to look for pre-bundled weights in .deepface/weights/
+os.environ["DEEPFACE_HOME"] = os.getcwd()
+
 import cv2
 import numpy as np
 import streamlit as st
@@ -12,6 +17,17 @@ st.set_page_config(
     layout="wide"
 )
 
+# 2. Cache DeepFace model loading in RAM across app sessions
+@st.cache_resource
+def load_models():
+    """Builds and keeps Facenet512 in memory so it doesn't reload on every button click."""
+    _ = DeepFace.build_model("Facenet512")
+    return True
+
+# Initialize model cache on startup
+with st.spinner("Initializing AI models into memory..."):
+    load_models()
+
 # Custom CSS for centered title and natural webcam styling
 st.markdown(
     """
@@ -21,9 +37,8 @@ st.markdown(
         text-decoration: underline;            /* Enables the underline */
         text-decoration-color: #ff4757;       /* Changes line color */
         text-decoration-thickness: 3px;       /* Adjusts line thickness */
-        text-underline-offset: 5px
-        padding-bottom: 20px;                  /* Adds space below the title */
-}
+        text-underline-offset: 5px;            /* Adds space below the title */
+        padding-bottom: 20px;                 /* Adds space below the title */
     }
     video {
         -webkit-transform: scaleX(1); 
