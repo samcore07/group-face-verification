@@ -1,0 +1,7 @@
+streamlit
+deepface
+retina-face
+tf-keras
+opencv-python-headless
+pillow
+numpy
