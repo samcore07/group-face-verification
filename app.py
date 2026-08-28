@@ -5,23 +5,44 @@ import streamlit as st
 from PIL import Image
 from deepface import DeepFace
 
-st.set_page_config(layout="wide")
-st.title("📸 Group Face Verification (RetinaFace + Facenet512)")
+# Page configuration
+st.set_page_config(
+    page_title="Group Face Verification", 
+    page_icon="📸", 
+    layout="wide"
+)
 
+# Custom CSS for centered title and natural webcam styling
 st.markdown(
     """
     <style>
-    video { -webkit-transform: scaleX(1); transform: scaleX(1) !important; }
+    h1 {
+        text-align: center;
+        text-decoration: underline;            /* Enables the underline */
+        text-decoration-color: #ff4757;       /* Changes line color */
+        text-decoration-thickness: 3px;       /* Adjusts line thickness */
+        text-underline-offset: 5px
+        padding-bottom: 20px;                  /* Adds space below the title */
+}
+    }
+    video {
+        -webkit-transform: scaleX(1); 
+        transform: scaleX(1) !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
+
+st.title("📸 Group Face Verification 📸")
+
 
 def cosine_distance(source_representation, test_representation):
     """Calculates exact cosine distance between two 512-D vectors."""
     a = np.array(source_representation)
     b = np.array(test_representation)
     return 1 - (np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+
 
 col1, col2 = st.columns([1, 1])
 
@@ -116,7 +137,7 @@ if group_file and user_file:
                     h = int(facial_area['h'])
                     best_box = (x, y, w, h)
                     
-                    crop = group_img_cv[max(0, y):min(img_h, y+h), max(0, x):min(img_w, x+w)]
+                    crop = group_img_cv[max(0, y):min(img_h, y + h), max(0, x):min(img_w, x + w)]
                     if crop.size > 0:
                         best_crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
 
@@ -140,10 +161,14 @@ if group_file and user_file:
                     res_col1, res_col2 = st.columns(2)
                     
                     with res_col1:
-                        ux, uy, uw, uh = max(0, int(user_area['x'])), max(0, int(user_area['y'])), int(user_area['w']), int(user_area['h'])
+                        ux = max(0, int(user_area['x']))
+                        uy = max(0, int(user_area['y']))
+                        uw = int(user_area['w'])
+                        uh = int(user_area['h'])
+                        
                         user_cv = cv2.imread("temp_user.jpg")
                         u_h, u_w, _ = user_cv.shape
-                        user_crop = user_cv[max(0, uy):min(u_h, uy+uh), max(0, ux):min(u_w, ux+uw)]
+                        user_crop = user_cv[max(0, uy):min(u_h, uy + uh), max(0, ux):min(u_w, ux + uw)]
                         
                         if user_crop.size > 0:
                             st.image(cv2.cvtColor(user_crop, cv2.COLOR_BGR2RGB), caption="Your Extracted Face", width=220)
