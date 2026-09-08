@@ -2,19 +2,17 @@ import os
 import sys
 import subprocess
 
-# 1. Force-uninstall standard OpenCV and ensure headless exists silently
-try:
-    import cv2
-except Exception:
-    pass
-
-# Check if standard opencv-python shared folder is present and purge it
+# 1. Force-uninstall standard OpenCV and ensure headless exists
 cv2_dir = os.path.join(sys.prefix, "lib", f"python{sys.version_info.major}.{sys.version_info.minor}", "site-packages", "cv2")
-if os.path.exists(cv2_dir) and not os.path.exists(os.path.join(cv2_dir, ".headless")):
+headless_marker = os.path.join(cv2_dir, ".headless")
+
+if not os.path.exists(headless_marker):
     subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python", "opencv-python-headless"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "opencv-python-headless==4.10.0.84"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    # Mark as headless patched
-    with open(os.path.join(cv2_dir, ".headless"), "w") as f:
+    
+    # Ensure directory exists before writing marker
+    os.makedirs(cv2_dir, exist_ok=True)
+    with open(headless_marker, "w") as f:
         f.write("patched")
 
 # 2. Point DeepFace home directory to local project root
