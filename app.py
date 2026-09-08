@@ -2,16 +2,14 @@ import os
 import sys
 import subprocess
 
-# 1. Force-uninstall standard OpenCV and ensure headless exists
-cv2_dir = os.path.join(sys.prefix, "lib", f"python{sys.version_info.major}.{sys.version_info.minor}", "site-packages", "cv2")
-headless_marker = os.path.join(cv2_dir, ".headless")
+# 1. Use /tmp/ for marker tracking to avoid virtual environment PermissionError
+headless_marker = "/tmp/.opencv_headless_patched"
 
 if not os.path.exists(headless_marker):
     subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python", "opencv-python-headless"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "opencv-python-headless==4.10.0.84"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
-    # Ensure directory exists before writing marker
-    os.makedirs(cv2_dir, exist_ok=True)
+    # Write marker file to /tmp/
     with open(headless_marker, "w") as f:
         f.write("patched")
 
