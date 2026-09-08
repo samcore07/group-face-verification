@@ -1,8 +1,0 @@
-streamlit
-opencv-python-headless
-tensorflow
-tf-keras
-deepface
-retina-face
-pillow
-numpy
