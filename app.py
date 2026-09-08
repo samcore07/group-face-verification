@@ -2,21 +2,22 @@ import os
 import sys
 import subprocess
 
-# Force-fix OpenCV packages at runtime BEFORE cv2 is ever loaded
-try:
-    # Check if standard GUI opencv-python is installed
-    import pkg_resources
-    installed = {pkg.key for pkg in pkg_resources.working_set}
-    if "opencv-python" in installed:
-        subprocess.check_call([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python"])
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", "opencv-python-headless==4.10.0.84"])
-except Exception as e:
-    pass
+# 1. Force purge standard opencv-python shared libraries from virtualenv at startup
+venv_site_packages = os.path.join(sys.prefix, "lib", f"python{sys.version_info.major}.{sys.version_info.minor}", "site-packages")
+cv2_path = os.path.join(venv_site_packages, "cv2")
 
-# Point DeepFace home directory to the local project root
+# If cv2 directory exists, check if headless is missing or GUI version is loaded
+try:
+    # Run pip check directly in a subprocess to uninstall GUI opencv and force headless
+    subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python", "opencv-python-headless"], check=False)
+    subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "opencv-python-headless==4.10.0.84"], check=True)
+except Exception as e:
+    print(f"OpenCV patch error: {e}")
+
+# 2. Point DeepFace home directory to the local project root
 os.environ["DEEPFACE_HOME"] = os.getcwd()
 
-# Now safe to import cv2 and remaining dependencies
+# 3. Safe imports
 import cv2
 import numpy as np
 import streamlit as st
