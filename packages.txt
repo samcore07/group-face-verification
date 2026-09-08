@@ -1,4 +1,0 @@
--o Acquire::Check-Valid-Until=false
-libgl1
-libglib2.0-0
-libglib2.0-bin
