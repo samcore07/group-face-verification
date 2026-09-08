@@ -2,19 +2,22 @@ import os
 import sys
 import subprocess
 
-# 1. Force purge standard opencv-python shared libraries from virtualenv at startup
-venv_site_packages = os.path.join(sys.prefix, "lib", f"python{sys.version_info.major}.{sys.version_info.minor}", "site-packages")
-cv2_path = os.path.join(venv_site_packages, "cv2")
-
-# If cv2 directory exists, check if headless is missing or GUI version is loaded
+# 1. Force-uninstall standard OpenCV and ensure headless exists silently
 try:
-    # Run pip check directly in a subprocess to uninstall GUI opencv and force headless
-    subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python", "opencv-python-headless"], check=False)
-    subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "opencv-python-headless==4.10.0.84"], check=True)
-except Exception as e:
-    print(f"OpenCV patch error: {e}")
+    import cv2
+except Exception:
+    pass
 
-# 2. Point DeepFace home directory to the local project root
+# Check if standard opencv-python shared folder is present and purge it
+cv2_dir = os.path.join(sys.prefix, "lib", f"python{sys.version_info.major}.{sys.version_info.minor}", "site-packages", "cv2")
+if os.path.exists(cv2_dir) and not os.path.exists(os.path.join(cv2_dir, ".headless")):
+    subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python", "opencv-python-headless"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "opencv-python-headless==4.10.0.84"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # Mark as headless patched
+    with open(os.path.join(cv2_dir, ".headless"), "w") as f:
+        f.write("patched")
+
+# 2. Point DeepFace home directory to local project root
 os.environ["DEEPFACE_HOME"] = os.getcwd()
 
 # 3. Safe imports
