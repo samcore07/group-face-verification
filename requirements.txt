@@ -1,9 +1,8 @@
 streamlit
 tensorflow
 tf-keras
-deepface
-retina-face
 pillow
 numpy
---extra-index-url https://pypi.org/simple
-opencv-python-headless
+opencv-python-headless==4.10.0.84
+deepface
+retina-face
