@@ -1,6 +1,6 @@
 streamlit
 opencv-python-headless==4.10.0.84
-opencv-python; sys_platform == 'streamlit_override'
+opencv-python-headless
 tensorflow
 tf-keras
 pillow
