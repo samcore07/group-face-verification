@@ -10,5 +10,5 @@ pandas
 scikit-learn
 tqdm
 flask
---no-deps deepface
---no-deps retina-face
+retina-face
+deepface
