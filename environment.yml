@@ -6,10 +6,17 @@ dependencies:
   - opencv
   - pillow
   - numpy
+  - scikit-learn
   - pip
   - pip:
-    - streamlit
-    - tensorflow
-    - tf-keras
-    - deepface
-    - retina-face
+      - streamlit
+      - tensorflow
+      - tf-keras
+      - deepface
+      - retina-face
+      - gdown
+      - pandas
+      - tqdm
+      - gunicorn
+      - Flask
+      - mtcnn
