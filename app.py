@@ -2,21 +2,26 @@ import os
 import sys
 import subprocess
 
-# 1. Use /tmp/ for marker tracking to avoid virtual environment PermissionError
-headless_marker = "/tmp/.opencv_headless_patched"
+# Force uninstall standard OpenCV directly before any module resolution
+try:
+    import cv2
+except Exception:
+    pass
 
-if not os.path.exists(headless_marker):
+# Direct binary patch: dynamically force headless reinstall if C++ bootstrap fails
+if "/tmp/.cv2_fixed" not in sys.modules:
     subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python", "opencv-python-headless"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "opencv-python-headless==4.10.0.84"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run([sys.executable, "-m", "pip", "install", "--no-cache-dir", "--force-reinstall", "opencv-python-headless==4.10.0.84"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
-    # Write marker file to /tmp/
-    with open(headless_marker, "w") as f:
-        f.write("patched")
+    # Invalidate Python module import cache so it picks up the new headless files
+    import importlib
+    importlib.invalidate_caches()
+    sys.modules["/tmp/.cv2_fixed"] = True
 
-# 2. Point DeepFace home directory to local project root
+# Point DeepFace home directory to local project root
 os.environ["DEEPFACE_HOME"] = os.getcwd()
 
-# 3. Safe imports
+# Safe imports
 import cv2
 import numpy as np
 import streamlit as st
