@@ -1,7 +1,9 @@
 streamlit
+tensorflow
+tf-keras
 deepface
 retina-face
-tf-keras
-opencv-python-headless
 pillow
 numpy
+--extra-index-url https://pypi.org/simple
+opencv-python-headless
