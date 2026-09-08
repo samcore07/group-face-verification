@@ -1,0 +1,15 @@
+name: app
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - opencv
+  - pillow
+  - numpy
+  - pip
+  - pip:
+    - streamlit
+    - tensorflow
+    - tf-keras
+    - deepface
+    - retina-face
