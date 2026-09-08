@@ -2,17 +2,21 @@ import os
 import sys
 import subprocess
 
-# Auto-fix OpenCV build mismatch on fresh Streamlit Cloud containers
+# Force-fix OpenCV packages at runtime BEFORE cv2 is ever loaded
 try:
-    import cv2
-except ImportError:
-    subprocess.call([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python", "opencv-python-headless"])
-    subprocess.call([sys.executable, "-m", "pip", "install", "opencv-python-headless==4.10.0.84"])
-    import cv2
-# 1. Point DeepFace home directory to the local project root
-# This forces DeepFace to look for pre-bundled weights in .deepface/weights/
+    # Check if standard GUI opencv-python is installed
+    import pkg_resources
+    installed = {pkg.key for pkg in pkg_resources.working_set}
+    if "opencv-python" in installed:
+        subprocess.check_call([sys.executable, "-m", "pip", "uninstall", "-y", "opencv-python"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--force-reinstall", "opencv-python-headless==4.10.0.84"])
+except Exception as e:
+    pass
+
+# Point DeepFace home directory to the local project root
 os.environ["DEEPFACE_HOME"] = os.getcwd()
 
+# Now safe to import cv2 and remaining dependencies
 import cv2
 import numpy as np
 import streamlit as st
